@@ -38,6 +38,13 @@ pub mod pallet {
 	// https://docs.substrate.io/main-docs/build/runtime-storage/#declaring-storage-items
 	pub type Something<T> = StorageValue<_, u32>;
 
+	#[pallet::storage]
+	pub type Number<T: Config> = StorageMap<_, Blake2_128Concat,
+								T::AccountId,
+								u32,
+								ValueQuery,
+							>;
+
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
@@ -79,6 +86,28 @@ pub mod pallet {
 			// Return a successful DispatchResultWithPostInfo
 			Ok(())
 		}
+
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn put_number(origin: OriginFor<T>, number: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+
+			<Number<T>>::insert(who.clone(), number);
+
+			Self::deposit_event(Event::SomethingStored(number, who));
+			Ok(())
+		}
+
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn delete_number(origin: OriginFor<T>, number: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+
+			<Number<T>>::remove(&who);
+
+			Self::deposit_event(Event::SomethingStored(number, who));
+			Ok(())
+		}
+
+		
 
 		/// An example dispatchable that may throw a custom error.
 		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
