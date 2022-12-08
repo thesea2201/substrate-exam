@@ -36,6 +36,7 @@ pub mod pallet {
 		pub price: Option<BalanceOf<T>>,
 		pub gender: Gender,
 		pub owner: T::AccountId,
+		pub date_created: u64,
 	}
 
 	// Set Gender type in kitty struct
@@ -325,6 +326,7 @@ pub mod pallet {
 			owner: &T::AccountId,
 			dna: [u8; 16],
 			gender: Gender,
+			date_created: T::TimeProvider::now().as_secs(),
 		) -> Result<[u8; 16], DispatchError> {
 			// Create a new object
 			let kitty = Kitty::<T> { dna, price: None, gender, owner: owner.clone() };
